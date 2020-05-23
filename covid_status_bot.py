@@ -3,10 +3,10 @@ import time
 import requests
 import json
 
-CONSUMER_KEY = 'cTClwv4eTB8gIUh4QheBU8bDV'
-CONSUMER_SECRET = 'I2Fcd205Nq3c6ONwPSW912CAxrfsSIfvALEYHriNYpBc6YPjTo'
-ACCESS_KEY = '1264183549235736576-N6edsOeHIyzW3AapxcPAHoEUR2rVUX'
-ACCESS_SECRET = '3OynekxRDWRmA81buoLWLQy7sGoHxdXUps9IH4yUs5QCg'
+CONSUMER_KEY = 'AAA'
+CONSUMER_SECRET = 'BBB'
+ACCESS_KEY = 'CCC'
+ACCESS_SECRET = 'DDD'
 headers = {
     'x-rapidapi-host': "covid-19-data.p.rapidapi.com",
     'x-rapidapi-key': "9b410773demsh2fdf82470f17cb1p153824jsn7d97102a08e3"
