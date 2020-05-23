@@ -9,7 +9,7 @@ ACCESS_KEY = 'CCC'
 ACCESS_SECRET = 'DDD'
 headers = {
     'x-rapidapi-host': "covid-19-data.p.rapidapi.com",
-    'x-rapidapi-key': "9b410773demsh2fdf82470f17cb1p153824jsn7d97102a08e3"
+    'x-rapidapi-key': "EEE"
     }
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
