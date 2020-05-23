@@ -17,7 +17,7 @@ auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 api = tweepy.API(auth)
 
-url = "https://covid-19-data.p.rapidapi.com/country"
+
 FILE_NAME = 'last_seen_id.txt'
 
 def retrieve_last_seen_id(file_name):
@@ -41,23 +41,41 @@ def reply_to_tweets():
         last_seen_id = mention.id
         store_last_seen_id(last_seen_id, FILE_NAME)
         if 'covid' in mention.full_text.lower():
-            try:
-                country = mention.full_text[mention.full_text.index(':') + 1:]
-                querystring = {"format":"json","name":country}
-                response = requests.request("GET", url, headers=headers, params=querystring)
-                data = json.loads(response.text[1:-1])
-                time = str(data['lastChange']).replace('T', ' ')[0:-6] + 'GMT'
-                reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 ' + country.upper() + '\n\nTotal Cases: ' + str(data['confirmed']) + '\nRecovered Cases: ' + 
-                        str(data['recovered']) + '\nCurrent Cases: ' + str(data['confirmed'] -
-                        data['recovered'] - data['deaths']) + '\nTotal Deaths: ' + str(data['deaths']) +
-                        '\n\nLast updated ' + time)
-                api.update_status('@' + mention.user.screen_name +
-                        reply, mention.id)
-                api.create_favorite(mention.id)
-            except:
-                reply = ' Uh oh! Something went wrong (maybe country not recognized)'
-                api.update_status('@' + mention.user.screen_name +
-                        reply, mention.id)
+            country = mention.full_text[mention.full_text.index(':') + 1:]
+            if 'world' in country.lower():
+                url = "https://covid-19-data.p.rapidapi.com/totals"
+                try:
+                    querystring = {"format":"json"}
+                    response = requests.request("GET", url, headers=headers, params=querystring)
+                    data = json.loads(response.text[1:-1])
+                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + 'GMT'
+                    reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 𝗪𝗼𝗿𝗹𝗱\n\nTotal Cases: ' + str(data['confirmed']) + '\nRecovered Cases: ' + 
+                            str(data['recovered']) + '\nCurrent Cases: ' + str(data['confirmed'] -
+                            data['recovered'] - data['deaths']) + '\nTotal Deaths: ' + str(data['deaths']) +
+                            '\n\nLast updated ' + time)
+                    api.update_status('@' + mention.user.screen_name +
+                            reply, mention.id)
+                except:
+                    reply = ' Uh oh! Something went wrong (maybe country not recognized)'
+                    api.update_status('@' + mention.user.screen_name +
+                            reply, mention.id)
+            else:
+                url = "https://covid-19-data.p.rapidapi.com/country"
+                try:
+                    querystring = {"format":"json","name":country}
+                    response = requests.request("GET", url, headers=headers, params=querystring)
+                    data = json.loads(response.text[1:-1])
+                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + 'GMT'
+                    reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 ' + country.upper() + '\n\nTotal Cases: ' + str(data['confirmed']) + '\nRecovered Cases: ' + 
+                            str(data['recovered']) + '\nCurrent Cases: ' + str(data['confirmed'] -
+                            data['recovered'] - data['deaths']) + '\nTotal Deaths: ' + str(data['deaths']) +
+                            '\n\nLast updated ' + time)
+                    api.update_status('@' + mention.user.screen_name +
+                            reply, mention.id)
+                except:
+                    reply = ' Uh oh! Something went wrong (maybe country not recognized)'
+                    api.update_status('@' + mention.user.screen_name +
+                            reply, mention.id)
 
 while True:
     reply_to_tweets()
