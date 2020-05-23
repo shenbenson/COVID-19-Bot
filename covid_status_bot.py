@@ -3,13 +3,14 @@ import time
 import requests
 import json
 
-CONSUMER_KEY = 'AAA'
-CONSUMER_SECRET = 'BBB'
-ACCESS_KEY = 'CCC'
-ACCESS_SECRET = 'DDD'
+CONSUMER_KEY = 'AAAA'
+CONSUMER_SECRET = 'BBBB'
+ACCESS_KEY = 'CCCC'
+ACCESS_SECRET = 'DDDD'
+
 headers = {
     'x-rapidapi-host': "covid-19-data.p.rapidapi.com",
-    'x-rapidapi-key': "EEE"
+    'x-rapidapi-key': "EEEE"
     }
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
@@ -36,7 +37,7 @@ def reply_to_tweets():
     last_seen_id = retrieve_last_seen_id(FILE_NAME)
     mentions = api.mentions_timeline(last_seen_id, tweet_mode='extended')
     for mention in reversed(mentions):
-        print(str(mention.id) + ' - ' + mention.full_text, flush=True)
+        print(mention.user.screen_name + ' - ' + mention.full_text, flush=True)
         last_seen_id = mention.id
         store_last_seen_id(last_seen_id, FILE_NAME)
         if 'covid' in mention.full_text.lower():
@@ -45,9 +46,14 @@ def reply_to_tweets():
                 querystring = {"format":"json","name":country}
                 response = requests.request("GET", url, headers=headers, params=querystring)
                 data = json.loads(response.text[1:-1])
-                reply = ' Total Cases: ' + str(data['confirmed']) + '\nRecovered Cases: ' + str(data['recovered']) + '\nCurrent Cases: ' + str(data['confirmed'] - data['recovered'] - data['deaths']) + '\nTotal Deaths: ' + str(data['deaths'])
+                time = str(data['lastChange']).replace('T', ' ')[0:-6] + 'GMT'
+                reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 ' + country.upper() + '\n\nTotal Cases: ' + str(data['confirmed']) + '\nRecovered Cases: ' + 
+                        str(data['recovered']) + '\nCurrent Cases: ' + str(data['confirmed'] -
+                        data['recovered'] - data['deaths']) + '\nTotal Deaths: ' + str(data['deaths']) +
+                        '\n\nLast updated ' + time)
                 api.update_status('@' + mention.user.screen_name +
                         reply, mention.id)
+                api.create_favorite(mention.id)
             except:
                 reply = ' Uh oh! Something went wrong (maybe country not recognized)'
                 api.update_status('@' + mention.user.screen_name +
@@ -55,4 +61,4 @@ def reply_to_tweets():
 
 while True:
     reply_to_tweets()
-    time.sleep(10)
+    time.sleep(15)
