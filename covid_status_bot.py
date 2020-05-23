@@ -17,7 +17,6 @@ auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 api = tweepy.API(auth)
 
-
 FILE_NAME = 'last_seen_id.txt'
 
 def retrieve_last_seen_id(file_name):
@@ -48,15 +47,15 @@ def reply_to_tweets():
                     querystring = {"format":"json"}
                     response = requests.request("GET", url, headers=headers, params=querystring)
                     data = json.loads(response.text[1:-1])
-                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + 'GMT'
-                    reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 𝗪𝗼𝗿𝗹𝗱\n\nTotal Cases: ' + str(data['confirmed']) + '\nRecovered Cases: ' + 
-                            str(data['recovered']) + '\nCurrent Cases: ' + str(data['confirmed'] -
-                            data['recovered'] - data['deaths']) + '\nTotal Deaths: ' + str(data['deaths']) +
-                            '\n\nLast updated ' + time)
+                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + ' GMT'
+                    reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 𝗪𝗼𝗿𝗹𝗱\n\nTotal Cases: ' + f"{data['confirmed']:,}" +
+                            '\nRecovered Cases: ' + f"{data['recovered']:,}" + '\nCurrent Cases: ' +
+                            f"{(data['confirmed'] - data['recovered'] - data['deaths']):,}" + 
+                            '\nTotal Deaths: ' + f"{data['deaths']:,}" + '\n\nLast updated ' + time)
                     api.update_status('@' + mention.user.screen_name +
                             reply, mention.id)
                 except:
-                    reply = ' Uh oh! Something went wrong (maybe country not recognized)'
+                    reply = ' Uh oh! Something went wrong.'
                     api.update_status('@' + mention.user.screen_name +
                             reply, mention.id)
             else:
@@ -65,15 +64,16 @@ def reply_to_tweets():
                     querystring = {"format":"json","name":country}
                     response = requests.request("GET", url, headers=headers, params=querystring)
                     data = json.loads(response.text[1:-1])
-                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + 'GMT'
-                    reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 ' + country.upper() + '\n\nTotal Cases: ' + str(data['confirmed']) + '\nRecovered Cases: ' + 
-                            str(data['recovered']) + '\nCurrent Cases: ' + str(data['confirmed'] -
-                            data['recovered'] - data['deaths']) + '\nTotal Deaths: ' + str(data['deaths']) +
-                            '\n\nLast updated ' + time)
+                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + ' GMT'
+                    reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 ' + country.upper() + '\n\nTotal Cases: ' +
+                            f"{data['confirmed']:,}" + '\nRecovered Cases: ' + 
+                            f"{data['recovered']:,}" + '\nCurrent Cases: ' +
+                            f"{(data['confirmed'] - data['recovered'] - data['deaths']):,}" + 
+                            '\nTotal Deaths: ' + f"{data['deaths']:,}" + '\n\nLast updated ' + time)
                     api.update_status('@' + mention.user.screen_name +
                             reply, mention.id)
                 except:
-                    reply = ' Uh oh! Something went wrong (maybe country not recognized)'
+                    reply = ' Uh oh! Something went wrong.'
                     api.update_status('@' + mention.user.screen_name +
                             reply, mention.id)
 
