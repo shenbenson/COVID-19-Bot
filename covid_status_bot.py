@@ -3,14 +3,14 @@ import time
 import requests
 import json
 
-CONSUMER_KEY = 'AAAA'
-CONSUMER_SECRET = 'BBBB'
-ACCESS_KEY = 'CCCC'
-ACCESS_SECRET = 'DDDD'
+CONSUMER_KEY = 'AAA'
+CONSUMER_SECRET = 'BBB'
+ACCESS_KEY = 'CCC'
+ACCESS_SECRET = 'DDD'
 
 headers = {
     'x-rapidapi-host': "covid-19-data.p.rapidapi.com",
-    'x-rapidapi-key': "EEEE"
+    'x-rapidapi-key': "EEE"
     }
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
@@ -36,18 +36,19 @@ def reply_to_tweets():
     last_seen_id = retrieve_last_seen_id(FILE_NAME)
     mentions = api.mentions_timeline(last_seen_id, tweet_mode='extended')
     for mention in reversed(mentions):
-        print(mention.user.screen_name + ' - ' + mention.full_text, flush=True)
         last_seen_id = mention.id
         store_last_seen_id(last_seen_id, FILE_NAME)
-        if 'covid' in mention.full_text.lower():
-            country = mention.full_text[mention.full_text.index(':') + 1:]
+        textholder = mention.full_text.lower()
+        print(mention.user.screen_name + ' - ' + textholder, flush=True)
+        if 'covid' in textholder:
+            country = textholder[textholder.index(':') + 1:]
             if 'world' in country.lower():
                 url = "https://covid-19-data.p.rapidapi.com/totals"
                 try:
                     querystring = {"format":"json"}
                     response = requests.request("GET", url, headers=headers, params=querystring)
                     data = json.loads(response.text[1:-1])
-                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + ' GMT'
+                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + ' CEST'
                     reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 𝗪𝗼𝗿𝗹𝗱\n\nTotal Cases: ' + f"{data['confirmed']:,}" +
                             '\nRecovered Cases: ' + f"{data['recovered']:,}" + '\nCurrent Cases: ' +
                             f"{(data['confirmed'] - data['recovered'] - data['deaths']):,}" + 
@@ -64,12 +65,12 @@ def reply_to_tweets():
                     querystring = {"format":"json","name":country}
                     response = requests.request("GET", url, headers=headers, params=querystring)
                     data = json.loads(response.text[1:-1])
-                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + ' GMT'
+                    time = str(data['lastUpdate']).replace('T', ' ')[0:-6] + ' CEST'
                     reply = (' 𝗗𝗮𝘁𝗮 𝗳𝗼𝗿 ' + country.upper() + '\n\nTotal Cases: ' +
                             f"{data['confirmed']:,}" + '\nRecovered Cases: ' + 
                             f"{data['recovered']:,}" + '\nCurrent Cases: ' +
                             f"{(data['confirmed'] - data['recovered'] - data['deaths']):,}" + 
-                            '\nTotal Deaths: ' + f"{data['deaths']:,}" + '\n\nLast updated ' + time)
+                            '\nTotal Deaths: ' + f"{data['deaths']:,}" + '\n\n' + '\n\nLast updated ' + time)
                     api.update_status('@' + mention.user.screen_name +
                             reply, mention.id)
                 except:
